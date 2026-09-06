@@ -1,0 +1,28 @@
+# Configuration de deploiement automatique pour Render (https://render.com)
+# Il suffit de connecter ce depot GitHub a Render : tout est pris en charge.
+services:
+  - type: web
+    name: nyongo
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-prod.txt
+    startCommand: gunicorn wsgi:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.4
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_USERNAME
+        value: admin
+      - key: ADMIN_PASSWORD
+        sync: false        # a saisir dans l'interface Render (mot de passe fort)
+      - key: DATABASE_URL
+        fromDatabase:
+          name: nyongo-db
+          property: connectionString
+
+databases:
+  - name: nyongo-db
+    plan: free
+    databaseName: nyongo
+    user: nyongo
